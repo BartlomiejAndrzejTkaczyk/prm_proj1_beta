@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">prm_proj1</string>
+    <string name="done_to_undone_task">%1$d/%2$d</string>
+    <string name="task_description">%1$s</string>
+    <string name="task_description_with_deadline">%1$s (%2$s)</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="delete_task">Delete task?</string>
+    <string name="delete_task_message">do you want delete task?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="description">Description</string>
+    <string name="save">save</string>
+    <string name="end_date">End date</string>
+</resources>
