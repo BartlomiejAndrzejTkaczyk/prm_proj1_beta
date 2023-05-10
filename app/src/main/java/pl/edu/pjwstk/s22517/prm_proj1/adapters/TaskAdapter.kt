@@ -1,6 +1,7 @@
 package pl.edu.pjwstk.s22517.prm_proj1.adapters
 
 import android.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import pl.edu.pjwstk.s22517.prm_proj1.R
 import pl.edu.pjwstk.s22517.prm_proj1.interfaces.Datasource
+import pl.edu.pjwstk.s22517.prm_proj1.models.Task
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 
 class TaskAdapter(
@@ -23,21 +26,28 @@ class TaskAdapter(
     class TaskViewHolder(
         private val view: View,
         private val db: Datasource,
-    ) : RecyclerView.ViewHolder(view){
+    ) : RecyclerView.ViewHolder(view) {
         val checkTask: CheckBox = view.findViewById(R.id.checkbox_task)
         val tomorrowAlert: ImageView = view.findViewById(R.id.tomorrow_alert)
         val taskDescription: TextView = view.findViewById(R.id.task_description)
 
-        fun bind(taskProgress: ProgressBar, completeTaskTextView: TextView, id: Int, abc: TaskAdapter) {
 
+        fun bind(
+            taskProgress: ProgressBar,
+            completeTaskTextView: TextView,
+            id: Int,
+            adapter: TaskAdapter,
+            posOnList: Int
+        ) {
             checkTask.setOnCheckedChangeListener { _, isChecked ->
                 db.getTask(id).isDone = isChecked
+                val doneTasksCount =  db.getAllDone().size
 
-                taskProgress.incrementProgressBy(if (isChecked) 1 else -1)
+                taskProgress.setProgress(doneTasksCount, true)
 
                 completeTaskTextView.text = view.context.getString(
                     R.string.done_to_undone_task,
-                    db.loadTask().filter { it.isDone }.size,
+                    doneTasksCount,
                     db.size()
                 )
             }
@@ -48,74 +58,77 @@ class TaskAdapter(
                     setTitle(R.string.delete_task)
                     setMessage(R.string.delete_task_message)
                     setPositiveButton(R.string.yes) { _, _ ->
+                        adapter.notifyItemRemoved(id)
                         db.removeById(id)
-                        abc.notifyItemRemoved(adapterPosition)
+
+                        val doneTasksCount =  db.loadTask().filter { it.isDone }.size
+                        adapter.taskProgress.setProgress(doneTasksCount, true)
+                        adapter.taskProgress.max = db.size()
+                        completeTaskTextView.text = view.context.getString(
+                            R.string.done_to_undone_task,
+                            doneTasksCount,
+                            db.size()
+                        )
                     }
                     setNegativeButton(R.string.no, null)
                     show()
                 }
-                return@setOnLongClickListener true
+
+                true
             }
         }
-
-        fun unbind(taskProgress: ProgressBar, completeTaskTextView: TextView){
-            taskProgress.incrementProgressBy(-1)
-            completeTaskTextView.text = view.context.getString(
-                R.string.done_to_undone_task,
-                db.loadTask().filter { it.isDone }.size,
-                db.size()
-            )
-        }
-
-    }
-
-    override fun onViewRecycled(holder: TaskViewHolder) {
-        super.onViewRecycled(holder)
-        holder.itemView.setOnLongClickListener(null)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val adapterLayout =
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.task_min, parent, false)
-
-        return TaskViewHolder(adapterLayout, db)
+        LayoutInflater.from(parent.context)
+            .inflate(R.layout.task_min, parent, false)
+            .also {
+                return TaskViewHolder(it, db)
+            }
     }
 
     override fun getItemCount(): Int = db.size()
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        val task = db.getTask(position)
+        val task = db.loadTask()[position]
         val context = holder.itemView.context
 
-        holder.bind(taskProgress, completeTaskTextView, task.id, this)
+        holder.bind(taskProgress, completeTaskTextView, task.id, this, position)
+        holder.checkTask.isChecked = task.isDone
 
-        if (task.deadline != null) {
+
+        if (task.deadline == null) {
             holder.taskDescription.text = context.getString(
-                R.string.task_description_with_deadline,
-                task.description,
-                task.deadline.toString()
+                R.string.task_description,
+                task.title,
+            )
+            return
+        }
+
+        val daysToDeadline = ChronoUnit.DAYS.between(LocalDate.now(), task.deadline)
+        if (daysToDeadline < 0L) {
+            holder.taskDescription.text = context.getString(
+                R.string.task_description_after_deadline,
+                task.title,
+                (-1 * daysToDeadline).toString(),
+            )
+        } else if (daysToDeadline > 0L) {
+            holder.taskDescription.text = context.getString(
+                R.string.task_description_before_deadline,
+                task.title,
+                daysToDeadline.toString(),
             )
         } else {
             holder.taskDescription.text = context.getString(
-                R.string.task_description,
-                task.description,
+                R.string.task_description_on_deadline,
+                task.title,
             )
         }
 
-        holder.checkTask.isChecked = task.isDone
 
         val todayDate = LocalDate.now().plusDays(3)
         holder.tomorrowAlert.visibility =
-            if (task.deadline == null || todayDate >= task.deadline) View.VISIBLE else View.INVISIBLE
+            if (task.deadline != null && todayDate >= task.deadline) View.VISIBLE else View.INVISIBLE
     }
 
-    override fun onViewDetachedFromWindow(holder: TaskViewHolder) {
-        holder.unbind(taskProgress, completeTaskTextView)
-        super.onViewDetachedFromWindow(holder)
-    }
-
-    override fun onViewAttachedToWindow(holder: TaskViewHolder) {
-        super.onViewAttachedToWindow(holder)
-    }
 }

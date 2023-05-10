@@ -1,11 +1,11 @@
-package pl.edu.pjwstk.s22517.prm_proj1
+package pl.edu.pjwstk.s22517.prm_proj1.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import pl.edu.pjwstk.s22517.prm_proj1.R
 import pl.edu.pjwstk.s22517.prm_proj1.adapters.TaskAdapter
 import pl.edu.pjwstk.s22517.prm_proj1.databinding.FragmentToDoListBinding
 import pl.edu.pjwstk.s22517.prm_proj1.datasources.FakeTaskDatasource
@@ -33,25 +33,24 @@ class ToDoList : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val completeTaskTextView = binding.completeTask
-        val toDoList = binding.toDoList
-        val taskProgress = binding.taskProgress
-
         val doneTask = db.loadTask().filter { it.isDone }.size
-        completeTaskTextView.text = resources.getString(
-            R.string.done_to_undone_task,
-            doneTask,
-            db.size()
-        )
-        taskProgress.setProgress(doneTask, true)
+        binding.apply {
+            completeTask.text = resources.getString(
+                R.string.done_to_undone_task,
+                doneTask,
+                db.size()
+            )
 
-        toDoList.adapter = TaskAdapter(db, completeTaskTextView, taskProgress)
-        toDoList.setHasFixedSize(true)
+            taskProgress.max = db.size()
+            taskProgress.setProgress(0, true)
 
-        binding.addTaskBtn.setOnClickListener {
-            (activity as? Navigable)?.navigate(Navigable.Destination.Add)
+            toDoList.adapter = TaskAdapter(db, completeTask, taskProgress)
+            toDoList.setHasFixedSize(true)
+
+            addTaskBtn.setOnClickListener {
+                (activity as? Navigable)?.navigate(Navigable.Destination.Add)
+            }
+
         }
     }
 }

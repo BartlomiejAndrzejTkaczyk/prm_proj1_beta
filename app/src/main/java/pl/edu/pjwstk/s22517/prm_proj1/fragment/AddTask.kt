@@ -1,25 +1,29 @@
-package pl.edu.pjwstk.s22517.prm_proj1
+package pl.edu.pjwstk.s22517.prm_proj1.fragment
 
-import android.annotation.SuppressLint
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import pl.edu.pjwstk.s22517.prm_proj1.dialog.DatePicker
 import pl.edu.pjwstk.s22517.prm_proj1.databinding.FragmentAddTaskBinding
 import pl.edu.pjwstk.s22517.prm_proj1.datasources.FakeTaskDatasource
 import pl.edu.pjwstk.s22517.prm_proj1.interfaces.Datasource
 import pl.edu.pjwstk.s22517.prm_proj1.interfaces.Navigable
+import pl.edu.pjwstk.s22517.prm_proj1.interfaces.TimeNeeder
 import pl.edu.pjwstk.s22517.prm_proj1.models.Task
 import java.time.LocalDate
-import java.time.ZoneId
-import java.util.Date
 
-class AddTask : Fragment() {
+class AddTask : Fragment(), TimeNeeder {
     private lateinit var binding: FragmentAddTaskBinding
     private lateinit var db: Datasource
+    private lateinit var deadlineView: TextView
+    var _deadline: LocalDate? = null
+        set(value) {
+            field = value
+            deadlineView.text = value.toString()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,39 +34,27 @@ class AddTask : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         return FragmentAddTaskBinding.inflate(inflater, container, false).also {
             binding = it
+            this.deadlineView = binding.deadline
         }.root
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.notDeadline.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                binding.deadline.background = ColorDrawable(Color.parseColor("#FFFFFF"))
-            } else {
-                binding.deadline.background = ColorDrawable(Color.parseColor("#E0E0E0"))
-            }
-           binding.deadline.visibility = if (isChecked) View.VISIBLE else View.GONE
+        binding.addDeadline.setOnClickListener { _ ->
+            val dialog = DatePicker()
+            dialog.timeNeedFragment = this
+            dialog.show(parentFragmentManager, "datePicker")
         }
 
         binding.save.setOnClickListener {
-            var deadline: LocalDate? = null
-
-            if (binding.notDeadline.isChecked) {
-                deadline = Date(binding.deadline.date)
-                    .toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
-            }
-
             val task = Task(
-                description = binding.description.text.toString(),
+                title = binding.title.text.toString(),
+                desc = binding.desc.text.toString(),
                 isDone = false,
-                deadline = deadline
+                deadline = this._deadline
             )
             db.saveTask(task)
 
@@ -71,4 +63,7 @@ class AddTask : Fragment() {
         }
     }
 
+    override fun sendTime(time: LocalDate) {
+        _deadline = time
+    }
 }

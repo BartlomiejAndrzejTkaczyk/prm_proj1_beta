@@ -4,7 +4,8 @@ import java.time.LocalDate
 
 data class Task(
     var id: Int = -1,
-    var description: String = "",
+    var title: String = "",
+    var desc: String = "",
     var isDone: Boolean = false,
     var deadline: LocalDate? = null,
 )

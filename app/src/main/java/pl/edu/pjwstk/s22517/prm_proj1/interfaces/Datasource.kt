@@ -7,6 +7,7 @@ interface Datasource {
     fun open(): Datasource
     fun deleteTask(id: Int?)
     fun getTask(id: Int): Task
+    fun getAllDone(): MutableList<Task>
     fun size(): Int
     fun removeById(id: Int): Boolean
     fun saveTask(task: Task)

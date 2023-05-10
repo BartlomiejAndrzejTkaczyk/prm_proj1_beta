@@ -4,61 +4,72 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddTask">
+    android:autofillHints="date not set"
+    tools:context=".fragment.AddTask">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <EditText
-            android:id="@+id/description"
+            android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
-            android:layout_marginEnd="32dp"
-            android:autofillHints="@string/description"
-            android:hint="@string/description"
+            android:autofillHints="@string/title"
+            android:hint="@string/title"
             android:inputType="text"
+            android:minWidth="180dp"
             android:minHeight="48dp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <CalendarView
-            android:id="@+id/deadline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="32dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/not_deadline" />
-
         <Button
             android:id="@+id/save"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="62dp"
+            android:layout_marginTop="8dp"
             android:text="@string/save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/deadline"
-            app:layout_constraintStart_toStartOf="@+id/deadline" />
+            app:layout_constraintEnd_toEndOf="@+id/add_deadline"
+            app:layout_constraintStart_toStartOf="@+id/add_deadline"
+            app:layout_constraintTop_toBottomOf="@+id/add_deadline" />
 
-        <Switch
-            android:id="@+id/not_deadline"
+        <Button
+            android:id="@+id/add_deadline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="8dp"
+            android:text="add date"
+            app:layout_constraintEnd_toEndOf="@+id/desc"
+            app:layout_constraintTop_toBottomOf="@+id/desc" />
+
+        <TextView
+            android:id="@+id/deadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:autofillHints="date not set"
+            android:hint="date not set"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/add_deadline" />
+
+        <EditText
+            android:id="@+id/desc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="@string/desc"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="@string/desc"
+            android:inputType="textMultiLine"
             android:minHeight="48dp"
-            android:text="@string/end_date"
-            app:layout_constraintEnd_toEndOf="@+id/description"
-            app:layout_constraintStart_toStartOf="@+id/description"
-            app:layout_constraintTop_toBottomOf="@+id/description"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

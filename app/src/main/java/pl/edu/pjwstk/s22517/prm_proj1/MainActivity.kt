@@ -4,6 +4,8 @@ package pl.edu.pjwstk.s22517.prm_proj1
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import pl.edu.pjwstk.s22517.prm_proj1.fragment.AddTask
+import pl.edu.pjwstk.s22517.prm_proj1.fragment.ToDoList
 import pl.edu.pjwstk.s22517.prm_proj1.interfaces.Navigable
 
 class MainActivity : AppCompatActivity(), Navigable {
@@ -23,7 +25,6 @@ class MainActivity : AppCompatActivity(), Navigable {
         supportFragmentManager.beginTransaction().apply {
             when(to){
                 Navigable.Destination.List -> {
-
                     replace(R.id.container, ToDoList(), ToDoList::class.java.name)
                 }
                 Navigable.Destination.Add -> {
